@@ -28,7 +28,8 @@ void write(int __fd, const void *__buf, int __n)
   );
 }
 
-void exit(int code){
+void exit(int code)
+{
   __asm__ __volatile__(
     "mv a0, %0           # return code\n"
     "li a7, 93           # syscall exit (64) \n"
@@ -39,6 +40,11 @@ void exit(int code){
   );
 }
 
+void _start()
+{
+  int ret_code = main();
+  exit(ret_code);
+}
 
 #define STDIN_FD  0
 #define STDOUT_FD 1
@@ -46,48 +52,44 @@ void exit(int code){
 /* Aloca um buffer com 10 bytes.*/
 char buffer[10];
 
-int resultado;
+char bla[1];
 
-/* Calcula o resultado da operação. */
-int calcula(char dado1, char dado2, char opera){
-  char result;
-  switch (opera){
-    case '-' :
-    return (dado1 - '0' ) - (dado2 - '0');
-    
-    case '+' :
-    return (dado1 - '0' ) + (dado2 - '0');
-    
-    case '*' :
-    return (dado1 - '0' ) * (dado2 - '0');
-
-    default:
-    return 0;
-  }
+int aba(){
+  int aba = 9;
+  return aba;
 }
 
 int main()
 {
-  /* Lê a entrada */
+  /* Lê uma string da entrada padrão */
   int n = read(STDIN_FD, (void*) buffer, 10);
 
-  resultado = calcula(buffer[0], buffer[4], buffer[2]);
- 
-  /* Sobreescreve a entrada */
-  buffer[0] = resultado + 48;
+  /* Modifica a string lida */
+
+  /* Substitui o primeiro caractere pela letra M */
+  buffer[0]   = 'J';
+  if (buffer[1] == 'a')
+  {
+    buffer[2] = 'o';
+  }
+  else
+  {
+    buffer[2] = 'h';
+  }
   
-  for (int i = 1; i < 5; i++){
-      buffer[i] = 00;
-    }
+
+  /* Substitui o último caractere (n-1) por uma exclamação e 
+   * adiciona um caractere de quebra de linha no buffer logo 
+   * após a string. 
+   * OBS: no simulador ALE, se a entrada for digitada no terminal e 
+   *      seguida de um enter, o último caractere será um '\n'
+   */
+  buffer[n-1]   = '!';
+  buffer[n]     = '\n';
   
-  /* Imprime o resultado sobreescrito a entrada */
-  write(STDOUT_FD, (void*) buffer, 6);
+  /* Imprime a string lida e os dois caracteres adicionados 
+   * na saída padrão. */
+  write(STDOUT_FD, (void*) buffer, n+5);
 
   return 0;
-}
-
-void _start()
-{
-  int ret_code = main();
-  exit(ret_code);
 }
