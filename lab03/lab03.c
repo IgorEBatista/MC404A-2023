@@ -61,27 +61,65 @@ int pot(int base, int potencia){
 
 void cv_d_b(char v_bin[] , int decimal){}
 
-int le_dec(char v_ent[], int n, int base, int sinal){
-  /*  Transforma a entrada de string para inteiro
+int str_int(char v_ent[], int tam, int base, int sinal){
+  /*  Transforma a entrada de string para inteiro na base 10
   Sinal = 0 -> Decimal positivo
   Sinal = 2 -> Decimal negativo */
   int valor = 0;
-  for (int i = 0; i < n - sinal; i++){
+  int fim;
+  for (int i = 0; i < tam - sinal; i++){
 
-    if (v_ent[n -i - 1] >= 48 && v_ent[n -i - 1] <= 57){
-      valor += (v_ent[n -i -1] - 48) * pot(base, i);
+    if (v_ent[tam -i - 1] >= 48 && v_ent[tam -i - 1] <= 57){
+      valor += (v_ent[tam -i -1] - 48) * pot(base, i);
       
     }
-    else if(v_ent[n -i - 1] >= 97 && v_ent[n -i - 1] <= 102){
-      valor += (v_ent[n -i -1] - 87) * pot(base, i);
+    else if(v_ent[tam -i - 1] >= 97 && v_ent[tam -i - 1] <= 102){
+      valor += (v_ent[tam -i -1] - 87) * pot(base, i);
     }
     
   }
   return valor;
 }
   
+int hex_dec(char bin[], int tam){
+  return str_int(bin, tam, 16, 0);
+}
 
+int bin_dec(char bin[], int tam, int sinal){
+  return str_int(bin, tam, 2, sinal);
+}
 
+void dec_hex(int dec, char hex){
+
+  if (dec < 10){
+    hex = dec;
+  }
+  else{
+    hex = 87 + dec;
+  }
+  
+
+}
+
+void bin_hex(char bin[34], char hex[34]){
+  hex[1] = 'x';
+  char apoio[4] = "0000";
+  for (int i = 0; i < 8; i++){
+    for (int j = 0; j < 4; j++){
+      apoio[j] = bin[(4*i) + j + 2];
+    }
+
+    dec_hex(bin_dec(apoio, 4, 0), hex[i + 2]);
+
+  }
+  
+}
+
+void dec_bin(int dec, char bin[34]){
+
+}
+
+void swap_bin(char bin[34], char saida[]){}
 
 int main()
 {
@@ -93,8 +131,9 @@ int main()
   
 
   if (entrada[0] != '0'){
+      //Caso entrada seja decimal
     if (entrada[0] != '-'){
-      //Caso entrada seja decimal positiva
+      // Positiva
       
       //Converte para valor decimal
       int dec_ent = le_dec(entrada, n, sinal);
