@@ -1,46 +1,44 @@
-// int read(int __fd, const void *__buf, int __n){
-//     int ret_val;
-//   __asm__ __volatile__(
-//     "mv a0, %1           # file descriptor\n"
-//     "mv a1, %2           # buffer \n"
-//     "mv a2, %3           # size \n"
-//     "li a7, 63           # syscall write code (63) \n"
-//     "ecall               # invoke syscall \n"
-//     "mv %0, a0           # move return value to ret_val\n"
-//     : "=r"(ret_val)  // Output list
-//     : "r"(__fd), "r"(__buf), "r"(__n)    // Input list
-//     : "a0", "a1", "a2", "a7"
-//   );
-//   return ret_val;
-// }
+int read(int __fd, const void *__buf, int __n){
+    int ret_val;
+  __asm__ __volatile__(
+    "mv a0, %1           # file descriptor\n"
+    "mv a1, %2           # buffer \n"
+    "mv a2, %3           # size \n"
+    "li a7, 63           # syscall write code (63) \n"
+    "ecall               # invoke syscall \n"
+    "mv %0, a0           # move return value to ret_val\n"
+    : "=r"(ret_val)  // Output list
+    : "r"(__fd), "r"(__buf), "r"(__n)    // Input list
+    : "a0", "a1", "a2", "a7"
+  );
+  return ret_val;
+}
 
-// void write(int __fd, const void *__buf, int __n)
-// {
-//   __asm__ __volatile__(
-//     "mv a0, %0           # file descriptor\n"
-//     "mv a1, %1           # buffer \n"
-//     "mv a2, %2           # size \n"
-//     "li a7, 64           # syscall write (64) \n"
-//     "ecall"
-//     :   // Output list
-//     :"r"(__fd), "r"(__buf), "r"(__n)    // Input list
-//     : "a0", "a1", "a2", "a7"
-//   );
-// }
+void write(int __fd, const void *__buf, int __n)
+{
+  __asm__ __volatile__(
+    "mv a0, %0           # file descriptor\n"
+    "mv a1, %1           # buffer \n"
+    "mv a2, %2           # size \n"
+    "li a7, 64           # syscall write (64) \n"
+    "ecall"
+    :   // Output list
+    :"r"(__fd), "r"(__buf), "r"(__n)    // Input list
+    : "a0", "a1", "a2", "a7"
+  );
+}
 
-// void exit(int code)
-// {
-//   __asm__ __volatile__(
-//     "mv a0, %0           # return code\n"
-//     "li a7, 93           # syscall exit (64) \n"
-//     "ecall"
-//     :   // Output list
-//     :"r"(code)    // Input list
-//     : "a0", "a7"
-//   );
-// }
-
-#include <stdio.h>
+void exit(int code)
+{
+  __asm__ __volatile__(
+    "mv a0, %0           # return code\n"
+    "li a7, 93           # syscall exit (64) \n"
+    "ecall"
+    :   // Output list
+    :"r"(code)    // Input list
+    : "a0", "a7"
+  );
+}
 
 #define STDIN_FD  0
 #define STDOUT_FD 1
@@ -130,11 +128,11 @@ void bin_hex(char bin[35], char hex[11]){
   }
 }
 
-void dec_bin(int dec, char bin[35]){
-  int apoio = dec, i = 33;
+void dec_bin(int dec, char bin[],int final){
+  int apoio = dec, i = final;
   bin[0] = '0';
   bin[1] = 'b';
-  bin[34] = '\n';
+  bin[final+1] = '\n';
   while ( i > 1 ) {
     bin[i] = (apoio % 2) + 48;
     apoio /= 2;
@@ -173,9 +171,7 @@ int main() {
 
   
   /* Read up to 33 bytes from the standard input into the entrada buffer */
-  // int n = read(STDIN_FD, entrada, 33);
-  scanf("%s", &entrada);
-  int n = 11;
+  int n = read(STDIN_FD, entrada, 33);
 
   if (entrada[0] != '0') {
       //Caso entrada seja decimal
@@ -186,7 +182,7 @@ int main() {
       dec_ent = str_int(entrada, n-1, 10, 0);
       
       //Converte de decimal para binario
-      dec_bin(dec_ent, binario);
+      dec_bin(dec_ent, binario, 33);
 
       //Converte de binario para hexadecimal
       bin_hex(binario, hexa);
@@ -203,7 +199,7 @@ int main() {
 
       //Converte de decimal para binario em complemento de 2
       dec_ent --;
-      dec_bin(dec_ent, binario);
+      dec_bin(dec_ent, binario, 33);
       inv_bin(binario, 33);
 
       //Converte de binario para hexadecimal
@@ -217,11 +213,50 @@ int main() {
   } else {
     //Caso hexadecimal
 
-    //Converte para valor decimal
+    if (entrada[2] >= 56) {
+      //Negativo
+      negativo = 1;
+      char tr_bin[34];
+      int deci;
+      //Transforma para binário, byte a byte
+      for (int i = 2; i < 10; i++) {
+        deci = str_int(&entrada[i], 1, 16, 0);
+        char bina[7] = "000000\n";
+        dec_bin(deci, bina, 5);
+        
+        binario[0] = '0';
+        binario[1] = 'b';
+        binario[34] = '\n';
+        for (int j = 0; j < 4; j++) {
+          binario[2+ ((i-2)*4) + j] = bina[2 + j];
+        }
+      }
+        
+      //Transforma para decimal
+      for (int i = 0; i < 35; i++) {
+        tr_bin[i] = binario[i];
+      }
+      inv_bin(tr_bin,33);
+      dec_ent = str_int(tr_bin, 34, 2, 2);
+
+      //Cria o hexa
+      bin_hex(binario, hexa);
+
+      //Faz o swap
+      swap_bin(binario,uns_bin);
+      longo = str_int(uns_bin, 32, 2, 0);
+        
+        
+      
+      
+    } else {
+      //Positivo
+
+      //Converte para valor decimal
       dec_ent = str_int(entrada, n-1, 16, 2);
       
       //Converte de decimal para binario
-      dec_bin(dec_ent, binario);
+      dec_bin(dec_ent, binario, 33);
 
       //Converte de binario para hexadecimal
       bin_hex(binario, hexa);
@@ -230,6 +265,7 @@ int main() {
       swap_bin(binario, uns_bin);
 
       longo = str_int(uns_bin, 32, 2, 0);
+    }
   }
   
   //Torna o decimal imprimível
@@ -268,21 +304,16 @@ int main() {
   s_longo[tam_long] = '\n';
 
   //Imprime os valores
-  // write(STDOUT_FD, binario, tam_bin+1);
-  // write(STDOUT_FD, s_dec, tam_dec +1);
-  // write(STDOUT_FD, hexa, tam_hexa+1);
-  // write(STDOUT_FD, s_longo, tam_long+1);
+  write(STDOUT_FD, binario, tam_bin+1);
+  write(STDOUT_FD, s_dec, tam_dec +1);
+  write(STDOUT_FD, hexa, tam_hexa+1);
+  write(STDOUT_FD, s_longo, tam_long+1);
   
-  printf("%s", binario);
-  printf("%s", s_dec);
-  printf("%s", hexa);
-  printf("%s", s_longo);
-
   return 0;
 }
 
-// void _start()
-// {
-//   int ret_code = main();
-//   exit(ret_code);
-// }
+void _start()
+{
+  int ret_code = main();
+  exit(ret_code);
+}
