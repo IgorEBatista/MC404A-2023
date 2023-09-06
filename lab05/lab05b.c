@@ -357,30 +357,8 @@ int pot(int base, int potencia){
   return result;
 }
 
-void pack(int input, int start_bit, int end_bit, unsigned int *val){
-
-    int mascara = 0, alinhado;
-
-    for (int i = 0;  i <= end_bit - start_bit; i++) {
-        mascara += pot(2, i);
-    }
-    
-    alinhado = input & mascara;
-    alinhado = alinhado << start_bit;
-
-    *val += alinhado;
-
-}
-
 int main()
 {
-    /*
-        Use the provided functions and the previously implemented pack function to pack the contents
-        of a RISC-V instruction on a single int variable, paying attention to each instruction's
-        particularities and print the final result using the hex_code function.
-    */
-
-   //TODO fazer o início do programa
 
     char string[30];
     int parte = 0, final = 0;
@@ -449,7 +427,7 @@ int main()
 
         //Separa imediato
         parte = data.imm & 0b100000000000;
-        parte = parte >> 10;
+        parte = parte >> 11;
         final = final | (parte << 7);
 
         final = final | (data.opcode << 0);
@@ -477,7 +455,7 @@ int main()
 
         //Separa imediato
         parte = data.imm & 0b100000000000;
-        parte = parte >> 10;
+        parte = parte >> 11;
         final = final | (parte << 20);
 
         //Separa imediato
