@@ -1,3 +1,5 @@
+
+.text
 .globl
 _start:
     jal main  # jump to main and save position to ra
