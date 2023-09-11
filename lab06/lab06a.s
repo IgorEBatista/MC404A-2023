@@ -9,7 +9,7 @@ exit:
 read:
     li a0, 0  # file descriptor = 0 (stdin)
     la a1, input #  buffer to write the data
-    li a2, 1  # size (reads only 1 byte)
+    li a2, 20  # size (reads only 20 byte)
     li a7, 63 # syscall read (63)
     ecall
     ret
@@ -131,7 +131,7 @@ int_dec:
         
 
 main:
-    # jal read  # jump to read and save position to ra
+    jal read  # jump to read and save position to ra
 
     la a0, input #carrega o endereço da string de input no registrador
     li a1, 4 # a1 = 4
@@ -149,20 +149,10 @@ main:
     jal write  # jump to write and save position to ra
     j exit  # jump to exit
 
-.data  #alterar pra .bss depois
+.bss
 
-inteiros: 
-        .word 0,0,0,0
-        
-raizes: .word 0,0,0,0
+inteiros: .skip 0x10 #vetor de 4 inteiros de 4 bytes
+raizes: .skip 0x10 #vetor de 4 inteiros de 4 bytes
 
-input: .asciiz "0400 5337 2240 9166"  # buffer de entrada
-saida:  .asciiz "01234567890123456789" #saida que sera escrita
-
-#.bss
-
-# inteiros: .skip 0x10 #vetor de 4 inteiros de 4 bytes
-# raizes: .skip 0x10 #vetor de 4 inteiros de 4 bytes
-
-# input: .skip 0x14  # buffer de entrada
-# saida:  .skip 0x14 #saida que sera escrita
+input: .skip 0x14  # buffer de entrada
+saida:  .skip 0x14 #saida que sera escrita
