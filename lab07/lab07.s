@@ -136,7 +136,7 @@ int_str: #Tranforma um vetor de inteiros em uma string (não liga para sinal)
 main:
     # Lê os 4 bits da primeira entrada
     li a2, 4 # a2 = 4
-    jal read  # jump to read and save position to ra
+    # jal read  # jump to read and save position to ra
 .data
     input: .string "1001"
 
@@ -205,13 +205,13 @@ main:
     # Imprime a primeira linha, de encoding
     li a2, 8 # a2 = 10
     la a1, saida
-    jal write  # jump to write and save position to ra
+    jal write2  # jump to write and save position to ra
      
     # Começa o decoding
     
     # Lê os 7 bits da primeira entrada
     li a2, 7 # a2 = 7
-    jal read  # jump to read and save position to ra
+    # jal read  # jump to read and save position to ra
 .data
     input2: .string "0011001"
 
@@ -220,17 +220,20 @@ main:
     # converte em um inteiro
     la a0, input2 # vetor input
     li a1, 1 # numero de grupos
-    li a2, 4 # numero de digitos
+    li a2, 7 # numero de digitos
     li a3, 2 # base numerica
-    la s1, int_i # vetor destino
+    la s1, int_f # vetor destino
     jal dec_int  # jump to dec_int and save position to ra
 
+    li a0, 1 # a0 = 0
+    lw a1, 0(s1)
+    jal write2  # jump to write2 and save position to ra
+    
     j exit
 
 
 .data
 
-# input: .string "1001\n56789ABCEF\n"
 temp: .string "AAAAA"
 saida: .string "FEDCBA9876543210\n"
 
