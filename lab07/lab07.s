@@ -1,10 +1,11 @@
 .text
-.globl
+.globl _start
 _start:
     jal main  # jump to main and save position to ra
 
 exit:
     li a7, 93           # syscall exit (93) \n
+    li a0, 10
     ecall
 
 read:
@@ -23,6 +24,12 @@ write:
     # li a2, 20           # size
     li a7, 64           # syscall write (64)
     ecall    
+    ret
+
+write2:
+    # a1 = endereço da string
+    li a0, 4 # a0 = 4
+    ecall
     ret
 
 dec_int:
@@ -98,7 +105,6 @@ int_str: #Tranforma um vetor de inteiros em uma string (não liga para sinal)
     
     li t1, '\n' # t1 = 10 = \n
     sb t1, 0(a1) # adiciona \n ao fim do vetor
-    ret
     addi a1, a1, -1 # a1 = a1 -1  - atualiza o contador de caractere
         
     1:
@@ -130,9 +136,9 @@ int_str: #Tranforma um vetor de inteiros em uma string (não liga para sinal)
 main:
     # Lê os 4 bits da primeira entrada
     li a2, 4 # a2 = 4
-    # jal read  # jump to read and save position to ra
+    jal read  # jump to read and save position to ra
 .data
-    input: .asciiz "1001"
+    input: .string "1001"
 
 .text
 
@@ -170,12 +176,12 @@ main:
     sb a0, 3(s2) # salva o byte na string
 
     #transforma o inteiro em string
-    mv  s3, s2 # s3 = s2
-    la s2, temp # carrega o endereço da string temporaria
-    li a0, 0 # a0 = 0 -- inicio do ultimo grupo (contador)
-    li a1, 4 # a1 = 4 -- posição do ultimo caracter (contador)
-    li a2, 2 # a2 = 2 -- base de escrita dos numeros
-    jal int_str  # jump to int_dec and save position to ra
+    # mv  s3, s2 # s3 = s2
+    # la s2, temp # carrega o endereço da string temporaria
+    # li a0, 0 # a0 = 0 -- inicio do ultimo grupo (contador)
+    # li a1, 4 # a1 = 4 -- posição do ultimo caracter (contador)
+    # li a2, 2 # a2 = 2 -- base de escrita dos numeros
+    # jal int_str  # jump to int_dec and save position to ra
     
     # adiciona os bits nas posições corretas para impressão
     la s2, input # 
@@ -196,26 +202,37 @@ main:
     li t1, '\n' # t1 = '\n'
     sb t1, 7(s1) #  adiciona \n na ultima posição da string de saida
 
+    # Imprime a primeira linha, de encoding
     li a2, 8 # a2 = 10
     la a1, saida
     jal write  # jump to write and save position to ra
-    la a1, temp
-    li a2, 8 # a2 = 10
-    jal write  # jump to write and save position to ra
-    
      
+    # Começa o decoding
     
-    
-    
+    # Lê os 7 bits da primeira entrada
+    li a2, 7 # a2 = 7
+    jal read  # jump to read and save position to ra
+.data
+    input2: .string "0011001"
+
+.text
+
+    # converte em um inteiro
+    la a0, input2 # vetor input
+    li a1, 1 # numero de grupos
+    li a2, 4 # numero de digitos
+    li a3, 2 # base numerica
+    la s1, int_i # vetor destino
+    jal dec_int  # jump to dec_int and save position to ra
 
     j exit
 
 
 .data
 
-# input: .asciiz "1001\n56789ABCEF\n"
-temp: .asciiz "AAAAA"
-saida: .asciiz "FEDCBA9876543210\n"
+# input: .string "1001\n56789ABCEF\n"
+temp: .string "AAAAA"
+saida: .string "FEDCBA9876543210\n"
 
 int_i: .word 0 # Um inteiro de 4 bytes
 int_f: .word 0 # Um inteiro de 4 bytes
