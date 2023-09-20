@@ -18,6 +18,7 @@ read:
     ret
 
 write:
+    # a1 endereço da string de saida
     # a2 numero de bits a serem escritos
     li a0, 1            # file descriptor = 1 (stdout)
     # la a1, saida       # buffer
@@ -136,9 +137,9 @@ int_str: #Tranforma um vetor de inteiros em uma string (não liga para sinal)
 main:
     # Lê os 4 bits da primeira entrada
     li a2, 4 # a2 = 4
-    # jal read  # jump to read and save position to ra
-.data
-    input: .string "1001"
+    jal read  # jump to read and save position to ra
+# .data
+#     input: .string "1001"
 
 .text
 
@@ -188,7 +189,6 @@ main:
     # la s2, temp
     
     la s1, saida # carrega a string de destino
-    mv  t0, zero # t0 = zero -- zera um contador
 
     lb t1, 0(s2) # Carrega o primeiro digito
     sb t1, 2(s1) # salva o primeiro digito
@@ -205,46 +205,135 @@ main:
     # Imprime a primeira linha, de encoding
     li a2, 8 # a2 = 10
     la a1, saida
-    jal write2  # jump to write and save position to ra
+    jal write  # jump to write and save position to ra
      
     # Começa o decoding
-    
+    #Consome o \n
+    li a2, 1 # a2 = 1
+    jal read  # jump to read and save position to ra
+
+
     # Lê os 7 bits da primeira entrada
     li a2, 7 # a2 = 7
-    # jal read  # jump to read and save position to ra
-.data
-    input2: .string "0011001"
+    jal read  # jump to read and save position to ra
+
+    ##retirar
+# .data
+#     input2: .string "0011001"
 
 .text
 
-    # converte em um inteiro
-    la a0, input2 # vetor input
-    li a1, 1 # numero de grupos
-    li a2, 7 # numero de digitos
-    li a3, 2 # base numerica
-    la s1, int_f # vetor destino
-    jal dec_int  # jump to dec_int and save position to ra
+    # reescreve o vetor (s2 fonte - s1 destino)
+    la s2, input # vetor input
+    la s1, saida # vetor destino
+    lb t1, 2(s2) # Carrega o primeiro digito
+    sb t1, 0(s1) # salva o primeiro digito
+    lb t1, 4(s2) # Carrega o segundo digito
+    sb t1, 1(s1) # salva o segundo digito
+    lb t1, 5(s2) # Carrega o terceiro digito
+    sb t1, 2(s1) # salva o terceiro digito
+    lb t1, 6(s2) # Carrega o quarto digito
+    sb t1, 3(s1) # salva o quarto digito
 
-    li a0, 1 # a0 = 0
-    lw a1, 0(s1)
-    jal write2  # jump to write2 and save position to ra
+    li t1, '\n' # t1 = '\n' -- adiciona uma quebra de linha
+    sb t1, 4(s1) # adiciona a quebra de linha ao vetor
+
+    ##retirar
+    # li t1, 0 # t1 = '\0' -- adiciona uma finalização
+    # sb t1, 5(s1) # adiciona a finalização ao vetor
+    
+    la a1, saida # carrega endereço da string
+    li a2, 5 # a2 = 5 -- numero de bytes a serem escritos
+    jal write #imprime a próxima linha, o numero original
+    # jal write2  # jump to write2 and save position to ra
+
+    ##Inicia a comparação
+    li a0, '0' # a0 = '0'
+    li a2, 0 # a2 = 0
+    
+#Compara p1
+    lb a1, 0(s2) # carrega p1
+    sub a1, a1, a0 # a1 = a1 - a0
+    
+    lb t1, 2(s2) # carrega d1
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 4(s2) # carrega d2
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 6(s2) # carrega d4
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    or a2, a1, a2 # se a1 = 1, guarda em a2
+#Compara p2
+    lb a1, 1(s2) # carrega p2
+    sub a1, a1, a0 # a1 = a1 - a0
+    
+    lb t1, 2(s2) # carrega d1
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 5(s2) # carrega d2
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 6(s2) # carrega d4
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    or a2, a1, a2 # se a1 = 1, guarda em a2
+#Compara p3
+    lb a1, 3(s2) # carrega p3
+    sub a1, a1, a0 # a1 = a1 - a0
+    
+    lb t1, 4(s2) # carrega d1
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 5(s2) # carrega d2
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    lb t1, 6(s2) # carrega d4
+    sub t1, t1, a0 # t1 = t1 - a0
+    xor a1, a1, t1 #compara paridade
+
+    or a2, a1, a2 # se a1 = 1, guarda em a2
+#Imprime a última linha
+    add a2, a2, a0 # a2 = a2 + a0 -- transofrma em caractere
+    sb a2, 0(s1) # adiciona o valor a ser impresso
+    li t1, '\n' # t1 = '\n' -- adiciona uma quebra de linha
+    sb t1, 1(s1) # adiciona a quebra de linha ao vetor
+
+    ##retirar
+    # li t1, 0 # t1 = '\0' -- adiciona uma finalização
+    # sb t1, 2(s1) # adiciona a finalização ao vetor
+    
+    la a1, saida # carrega endereço da string
+    li a2, 2 # a2 = 2 -- numero de bytes a serem escritos
+    jal write #imprime a próxima linha, se houve erro
+    # jal write2  # jump to write2 and save position to ra
+    
     
     j exit
 
 
-.data
+# .data
 
-temp: .string "AAAAA"
-saida: .string "FEDCBA9876543210\n"
+# temp: .string "AAAAA"
+# saida: .string "FEDCBA9876543210\n"
 
-int_i: .word 0 # Um inteiro de 4 bytes
-int_f: .word 0 # Um inteiro de 4 bytes
+# int_i: .word 0 # Um inteiro de 4 bytes
+# int_f: .word 0 # Um inteiro de 4 bytes
 
-# .bss
+.bss
 
-# int_i: .skip 0x4 # Um inteiro de 4 bytes
-# int_f: .skip 0x4 # Um inteiro de 4 bytes
+int_i: .skip 0x4 # Um inteiro de 4 bytes
+int_f: .skip 0x4 # Um inteiro de 4 bytes
 
-# # input: .skip 0x10  # buffer de entrada
-# temp:  .skip 0x4 #string temporaria
-# saida:  .skip 0x10 #saida que sera escrita
+input: .skip 0x10  # buffer de entrada
+temp:  .skip 0x4 #string temporaria
+saida:  .skip 0x10 #saida que sera escrita
