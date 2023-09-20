@@ -27,12 +27,6 @@ write:
     ecall    
     ret
 
-write2:
-    # a1 = endereço da string
-    li a0, 4 # a0 = 4
-    ecall
-    ret
-
 dec_int:
     #a0 = vetor input
     #a1 = numero de grupos
@@ -138,10 +132,6 @@ main:
     # Lê os 4 bits da primeira entrada
     li a2, 4 # a2 = 4
     jal read  # jump to read and save position to ra
-# .data
-#     input: .string "1001"
-
-.text
 
     # converte em um inteiro
     la a0, input # vetor input
@@ -175,18 +165,9 @@ main:
     addi a0, a0, '0' # a0 = a0 + '0' -- Transforma em caractere
     
     sb a0, 3(s2) # salva o byte na string
-
-    #transforma o inteiro em string
-    # mv  s3, s2 # s3 = s2
-    # la s2, temp # carrega o endereço da string temporaria
-    # li a0, 0 # a0 = 0 -- inicio do ultimo grupo (contador)
-    # li a1, 4 # a1 = 4 -- posição do ultimo caracter (contador)
-    # li a2, 2 # a2 = 2 -- base de escrita dos numeros
-    # jal int_str  # jump to int_dec and save position to ra
     
-    # adiciona os bits nas posições corretas para impressão
+    # adiciona os byts nas posições corretas para impressão
     la s2, input # 
-    # la s2, temp
     
     la s1, saida # carrega a string de destino
 
@@ -207,7 +188,7 @@ main:
     la a1, saida
     jal write  # jump to write and save position to ra
      
-    # Começa o decoding
+# Começa o decoding
     #Consome o \n
     li a2, 1 # a2 = 1
     jal read  # jump to read and save position to ra
@@ -216,12 +197,6 @@ main:
     # Lê os 7 bits da primeira entrada
     li a2, 7 # a2 = 7
     jal read  # jump to read and save position to ra
-
-    ##retirar
-# .data
-#     input2: .string "0011001"
-
-.text
 
     # reescreve o vetor (s2 fonte - s1 destino)
     la s2, input # vetor input
@@ -237,17 +212,12 @@ main:
 
     li t1, '\n' # t1 = '\n' -- adiciona uma quebra de linha
     sb t1, 4(s1) # adiciona a quebra de linha ao vetor
-
-    ##retirar
-    # li t1, 0 # t1 = '\0' -- adiciona uma finalização
-    # sb t1, 5(s1) # adiciona a finalização ao vetor
     
     la a1, saida # carrega endereço da string
     li a2, 5 # a2 = 5 -- numero de bytes a serem escritos
     jal write #imprime a próxima linha, o numero original
-    # jal write2  # jump to write2 and save position to ra
 
-    ##Inicia a comparação
+##Inicia a comparação
     li a0, '0' # a0 = '0'
     li a2, 0 # a2 = 0
     
@@ -307,27 +277,12 @@ main:
     sb a2, 0(s1) # adiciona o valor a ser impresso
     li t1, '\n' # t1 = '\n' -- adiciona uma quebra de linha
     sb t1, 1(s1) # adiciona a quebra de linha ao vetor
-
-    ##retirar
-    # li t1, 0 # t1 = '\0' -- adiciona uma finalização
-    # sb t1, 2(s1) # adiciona a finalização ao vetor
     
     la a1, saida # carrega endereço da string
     li a2, 2 # a2 = 2 -- numero de bytes a serem escritos
     jal write #imprime a próxima linha, se houve erro
-    # jal write2  # jump to write2 and save position to ra
-    
     
     j exit
-
-
-# .data
-
-# temp: .string "AAAAA"
-# saida: .string "FEDCBA9876543210\n"
-
-# int_i: .word 0 # Um inteiro de 4 bytes
-# int_f: .word 0 # Um inteiro de 4 bytes
 
 .bss
 
