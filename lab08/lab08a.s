@@ -36,9 +36,9 @@ setPixel:
         # A2[15..8]: Blue
         # A2[7..0]: Alpha
     # a7: 2200 (syscall number)
-    li a0, 100 # x coordinate = 100
-    li a1, 200 # y coordinate = 200
-    li a2, 0xFFFFFFFF # white pixel
+    # li a0, 100 # x coordinate = 100
+    # li a1, 200 # y coordinate = 200
+    # li a2, 0xFFFFFFFF # white pixel
     li a7, 2200 # syscall setPixel (2200)
     ecall
     ret
@@ -47,6 +47,9 @@ setCanvasSize:
     # a0: canvas width (value between 0 and 512)
     # a1: canvas height (value between 0 and 512)
     # a7: 2201 (syscall number)
+    li a7, 2201 # a7 = 2201
+    ecall
+    ret
 
 setScaling:
     # a0: horizontal scaling
@@ -59,6 +62,8 @@ openFile:
     li a2, 0             # mode
     li a7, 1024          # syscall open 
     ecall
+    ret
+
 
 renderiza:
     #a0: s11: file path
@@ -76,11 +81,13 @@ renderiza:
     mv  t6, ra # t6 = ra -- salva endereço de retorno
     1:
         mv  a0, s11 # a0 = s11
-        li a2, 512 # a2 = 512
+        mv a2, s10 # a2 = s10
         jal read  # jump to read and save position to ra
-        
+        mv  s8, s1 # s8 = s1
         2:
-            lb t1, 0(s1) # 
+            lb t1, 0(s8) # 
+            # li t1, 0x000000ff # t1 = 0x000000ff
+            
             
             mv  a0, t4 # a0 = t4 - coord atual x
             mv  a1, t5 # a1 = t5 - coord atual y
@@ -88,6 +95,8 @@ renderiza:
             jal setPixel  # jump to setPixel and save position to ra
             
             addi t4, t4, 1; # t4 = t4 + 1
+            addi s8, s8, 1; # s8 = s8 + 1
+
             bne t4, s10, 2b # if t4 != s10 then 2b    
         li t4, 0 # t4 = 0 - reseta contador de x
         addi t5, t5, 1; # t5 = t5 + 1
@@ -96,31 +105,55 @@ renderiza:
     ret
 
 main:
-    jal aloca  # jump to aloca and save position to ra
-    
 
     jal openFile # jump to open and save position to ra
+    mv  s0, a0 # s0 = a0 - salva o file path
     #set coisas
-    jal renderiza  # jump to renderiza and save position to ra
+    #Lê o numero magico
+    li a2, 3 # a2 = 3
+    jal read  # jump to read and save position to ra
+    jal write
+    #Lê altura
+    li a2, 3 # a2 = 3
+    jal read  # jump to read and save position to ra
+    jal write
+    
+    #Lê largura
+    li a2, 2 # a2 = 2
+    jal read  # jump to read and save position to ra
+    jal write
+    
+    #Lê MaxColor
+    li a2, 3 # a2 = 3
+    jal read  # jump to read and save position to ra
+    jal write
+
+    #set tamanho canva
+    la t0, largura # 
+    lw a0, 0(t0) # 
+    la t1, altura # 
+    lw a1, 0(t1) # 
+    jal setCanvasSize
     
 
-
-aloca:
-
-    li t0, 0 # t0 = 0 contador
-    li t1, 16 # t1 = 16 num repet
-    .data input:
-    .text
-    1:
-        .data
-         .word 0,0,0,0,0,0,0,0
-        .text
-        addi t0, t0, 1; # t0 = t0 + 1
-        bne t0, t1, 1b # if t0 != t1 then 1b
-    ret
-        
-
+    #Lê imagem
+    mv  a0, s0 # a0 = s0
+    la t0, largura # 
+    lw a1, 0(t0) # 
+    la t1, altura # 
+    lw a2, 0(t1) # 
+    jal renderiza  # jump to renderiza and save position to ra
+    
+    j exit
+ret
 
 .data
 
 input_file: .asciz "image.pgm" # não bota um /0 no final, tem que testar se dá certo
+
+altura: .word 7
+largura: .word 24
+
+.bss
+
+input: .skip 25
