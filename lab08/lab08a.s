@@ -64,6 +64,8 @@ openFile:
     ecall
     ret
 
+criaCor:
+    #a0:
 
 renderiza:
     #a0: s11: file path
@@ -87,7 +89,7 @@ renderiza:
         2:
             lb t1, 0(s8) # 
             # li t1, 0x000000ff # t1 = 0x000000ff
-            
+            jal criaCor
             
             mv  a0, t4 # a0 = t4 - coord atual x
             mv  a1, t5 # a1 = t5 - coord atual y
@@ -124,7 +126,7 @@ main:
     jal write
     
     #Lê MaxColor
-    li a2, 3 # a2 = 3
+    li a2, 4 # a2 = 4
     jal read  # jump to read and save position to ra
     jal write
 
@@ -151,9 +153,9 @@ ret
 
 input_file: .asciz "image.pgm" # não bota um /0 no final, tem que testar se dá certo
 
-altura: .word 7
-largura: .word 24
+altura: .word 9
+largura: .word 16
 
 .bss
 
-input: .skip 25
+input: .skip 200
