@@ -76,33 +76,34 @@ openFile:
 
 
 renderiza:
-    #a0 -> a3: endereco do byte atual  // Cord atual x
-    #a1 -> a4: largura da imagem // Cord atual y
-    #a2 -> a5: altura da imagem // Cor base pixel atual
+    #a0 -> a3: endereco do byte atual  // a0: Cord atual x
+    #a1 -> a4: largura da imagem // a1: Cord atual y
+    #a2 -> a5: altura da imagem // a2: Cor base pixel atual
     #t0: apoio cria cor
+    #t6: endereço de retorno (ra)
 
     mv  a3, a0 # a3 = a0
     mv  a4, a1 # a4 = a1
     mv  a5, a2 # a5 = a2
 
-    li a0, 0 # a0 = 0 contador de x
-    li t5, 0 # t5 = 0 contador de y
+    li a0, 0 # a0 = 0 coord de x
+    li a1, 0 # a1 = 0 coord de y
     mv  t6, ra # t6 = ra -- salva endereço de retorno
 
     1:
+        #Loop para cada linha
         2:
+            #Loop para cada coluna em uma linha
             lb a2, 0(a3) # carrega o byte da vez
-            
-            mv  a1, t5 # a1 = t5 - coord atual y
             jal setPixel  # jump to setPixel and save position to ra
-            
-            addi a0, a0, 1 # a0 = a0 + 1
-            addi a3, a3, 1 # a3 = a3 + 1 atualiza o endereço do byte da vez
-
-            bne a0, s10, 2b # if a0 != s10 then 2b    
-        li a0, 0 # a0 = 0 - reseta contador de x
-        addi t5, t5, 1 # t5 = t5 + 1
-        bne t5, s9, 1b # if t5 != s9 then 1b
+            addi a0, a0, 1 # a0 = a0 + 1 -- atualiza a coord x
+            addi a3, a3, 1 # a3 = a3 + 1 -- atualiza o endereço do byte da vez
+            bne a0, a4, 2b # if a0 != a4 then 2b    
+        
+        li a0, 0 # a0 = 0 - reseta coord de x
+        addi a1, a1, 1 # a1 = a1 + 1 -- atualiza coord de y
+        bne a1, a5, 1b # if a1 != a5 then 1b
+    
     mv  ra, t6 # ra = t6 -- usa endereço de retorno
     ret
 
