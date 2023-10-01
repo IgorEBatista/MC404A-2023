@@ -5,7 +5,7 @@ _start:
 
 exit:
     li a7, 93           # syscall exit (93) \n
-    li a0, 10
+    li a0, 0
     ecall
 
 read:
@@ -39,6 +39,7 @@ setPixel:
     # a7: 2200 (syscall number)
     # Constroi a cor
     li t0, 0 # t0 = 0 zera um temporário
+    andi a2, a2, 0b11111111 #Lida com numeros negativos
     or t0, t0, a2 #adiciona a primeira parcela da cor
     slli t0, t0, 8
     or t0, t0, a2 #adiciona a segunda parcela da cor
@@ -136,13 +137,13 @@ leCoisas:
             addi a0, a0, 1 # a0 = a0 + 1
             beq a4, a1, 1f # if a4 == a1 then 1f -- Verifica se é o espaço
             beq a4, a2, 1f # if a4 == a2 then 1f -- Verifica se é um \n
-            add a4, a4, a3 # a4 = a4 + a3 -- converte em numero
+            sub a4, a4, a3 # a4 = a4 + a3 -- converte em numero
             mul t0, t0, a2 # Multiplica o valor anterior por 10
             add t0, t0, a4 # t0 = t0 + a4 -- adiciona o novo digito ao total
             j 1b  # jump to 1b
         1:
         
-        sb t0, 0(t1) # salva a largura
+        sw t0, 0(t1) # salva a largura
         j 2b  # jump to 2b
     2:
     addi a0, a0, 4 # a0 = a0 + 4 -- skipa o max value (255 por padrão)
@@ -163,43 +164,17 @@ main:
     
     mv  s1, a0 # s1 = a0 -- salva o endereço de inicio da imagem em s1
 
-
-    
-    
-    
-    #set coisas
-    #Lê o numero magico
-    li a2, 3 # a2 = 3
-    jal read  # jump to read and save position to ra
-    jal write
-    #Lê altura
-    li a2, 3 # a2 = 3
-    jal read  # jump to read and save position to ra
-    jal write
-    
-    #Lê largura
-    li a2, 2 # a2 = 2
-    jal read  # jump to read and save position to ra
-    jal write
-    
-    #Lê MaxColor
-    li a2, 4 # a2 = 4
-    jal read  # jump to read and save position to ra
-    jal write
-
     #set tamanho canva
     la t0, largura # 
-    lw a0, 0(t0) # 
+    lw a0, 0(t0) #
     la t1, altura # 
-    lw a1, 0(t1) # 
+    lw a1, 0(t1) #
     jal setCanvasSize
-    
+
     #Lê imagem
-    mv a0, s0 # a0 = s0
-    la t0, largura # 
-    lw a1, 0(t0) # 
-    la t1, altura # 
-    lw a2, 0(t1) # 
+    mv  a2, a1 # a2 = a1
+    mv  a1, a0 # a1 = a0
+    mv a0, s1 # a0 = s1 -- passa o endereço dos pixels
     jal renderiza  # jump to renderiza and save position to ra
     
     j exit
@@ -207,15 +182,15 @@ main:
 
 .data
 
-input_file: .asciz "image.pgm" # não bota um /0 no final, tem que testar se dá certo
+input_file: .string "image.pgm" # não bota um /0 no final, tem que testar se dá certo
 
-TAM: .word 262.144
-_largura: .word 16
-_altura: .word 9
+TAM: .word 262144
+# largura: .word 10
+# altura: .word 10
 
-# input: .word 0
+# input: .string "P5 16 9 255\n________________________________________________________________"
 
 .bss
 largura: .skip 4
 altura: .skip 4
-input: .skip 262.144
+input: .skip 262144
