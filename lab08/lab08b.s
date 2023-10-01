@@ -38,8 +38,11 @@ setPixel:
         # A2[7..0]: Alpha
     # a7: 2200 (syscall number)
     # Constroi a cor
+    li t0, 255 # t0 = 255
+    bltu a2, t0, 1f # if a2 < t0 then 1f
+    mv  a2, t0 # a2 = t0
+    1:
     li t0, 0 # t0 = 0 zera um temporário
-    andi a2, a2, 0b11111111 #Lida com numeros negativos
     or t0, t0, a2 #adiciona a primeira parcela da cor
     slli t0, t0, 8
     or t0, t0, a2 #adiciona a segunda parcela da cor
@@ -81,7 +84,9 @@ renderiza:
     #a1 -> a4: largura da imagem // a1: Cord atual y
     #a2 -> a5: altura da imagem // a2: Cor base pixel atual
     #t0: apoio cria cor
-    #t6: endereço de retorno (ra)
+    #t1: apoio filtragem
+    #t2: constante filtragem (8)
+    #t3: largura/altura
 
     mv  a3, a0 # a3 = a0
     mv  a4, a1 # a4 = a1
@@ -89,13 +94,60 @@ renderiza:
 
     li a0, 0 # a0 = 0 coord de x
     li a1, 0 # a1 = 0 coord de y
-    mv  t6, ra # t6 = ra -- salva endereço de retorno
-
+    li t2, 8 # t2 = 8
+    
+    addi sp, sp, -4  # Salva enrdereço de ra na pilha do programa
+    sw   ra, (sp)    
+    
     1:
         #Loop para cada linha
         2:
             #Loop para cada coluna em uma linha
-            lb a2, 0(a3) # carrega o byte da vez
+            lbu a2, 0(a3) # carrega o byte da vez
+            #verifica se está na borda
+            beq a0, zero, borda # if a0 == zero then borda
+            beq a1, zero, borda # if a1 == zero then borda
+            LW t3, largura
+            addi t3, t3, -1 # t3 = t3 + -1
+            beq a0, t3, borda # if a0 == t3 then borda
+            LW t3, altura
+            addi t3, t3, -1 # t3 = t3 + -1
+            beq a1, t3, borda # if a1 == t3 then borda
+            
+            filtro:
+                mul a2, a2, t2 # a2 = a2.t2
+                lbu t1, -11(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, -10(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, -9(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, -1(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, 1(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, 9(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, 10(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+                lbu t1, 11(a3) # 
+                sub t1, zero, t1 # t1 = 0 - t1
+                add a2, a2, t1 # a2 = a2 + t1
+            bge a2, zero, cont # if a2 >= zero then cont
+            mv  a2, zero # a2 = zero
+            j cont  # jump to cont
+            
+            borda:
+                li a2, 0 # a2 = 0 -- carregag o pixel preto caso esteja na borda
+                
+            cont:
             jal setPixel  # jump to setPixel and save position to ra
             addi a0, a0, 1 # a0 = a0 + 1 -- atualiza a coord x
             addi a3, a3, 1 # a3 = a3 + 1 -- atualiza o endereço do byte da vez
@@ -104,7 +156,8 @@ renderiza:
         li a0, 0 # a0 = 0 - reseta coord de x
         addi a1, a1, 1 # a1 = a1 + 1 -- atualiza coord de y
         bne a1, a5, 1b # if a1 != a5 then 1b
-    
+    lw   ra, (sp)    # Recupera endereço de ra da pilha
+    addi sp, sp, 4
     mv  ra, t6 # ra = t6 -- usa endereço de retorno
     ret
 
@@ -182,7 +235,6 @@ main:
 .data
 
 input_file: .string "image.pgm" # nome do arquivo
-
 TAM: .word 262144
 
 .bss
