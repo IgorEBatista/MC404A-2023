@@ -117,29 +117,21 @@ renderiza:
             filtro:
                 mul a2, a2, t2 # a2 = a2.t2
                 lbu t1, -11(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, -10(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, -9(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, -1(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, 1(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, 9(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, 10(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
                 lbu t1, 11(a3) # 
-                sub t1, zero, t1 # t1 = 0 - t1
-                add a2, a2, t1 # a2 = a2 + t1
+                sub a2, a2, t1 # a2 = a2 - t1
             bge a2, zero, cont # if a2 >= zero then cont
             mv  a2, zero # a2 = zero
             j cont  # jump to cont

@@ -39,7 +39,6 @@ setPixel:
     # a7: 2200 (syscall number)
     # Constroi a cor
     li t0, 0 # t0 = 0 zera um temporário
-    andi a2, a2, 0b11111111 #Lida com numeros negativos
     or t0, t0, a2 #adiciona a primeira parcela da cor
     slli t0, t0, 8
     or t0, t0, a2 #adiciona a segunda parcela da cor
@@ -95,7 +94,7 @@ renderiza:
         #Loop para cada linha
         2:
             #Loop para cada coluna em uma linha
-            lb a2, 0(a3) # carrega o byte da vez
+            lbu a2, 0(a3) # carrega o byte da vez
             jal setPixel  # jump to setPixel and save position to ra
             addi a0, a0, 1 # a0 = a0 + 1 -- atualiza a coord x
             addi a3, a3, 1 # a3 = a3 + 1 -- atualiza o endereço do byte da vez
