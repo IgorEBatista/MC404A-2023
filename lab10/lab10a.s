@@ -8,16 +8,17 @@ gets:
     #t2: '\n'
     mv  a1, a0 # a1 = a0
     mv  a6, a0 # a6 = a0
-    li t2, 0 # t2 = 10
-    li a0, 0  # file descriptor = 0 (stdin)
+    li t2, 10 # t2 = 10
     # la a1, i #  buffer to write the data
     li a2, 1  # size (reads only 1 byte)
     li a7, 63 # syscall read (63)
     1:
+    li a0, 0  # file descriptor = 0 (stdin)
         ecall
         lb t1, 0(a1) # 
         beq t1, t2, 1f # if t1 == t2 then 1f
         addi a1, a1, 1 # a1 = a1 + 1
+
         j 1b  
     1:
     li t1, 0 # t1 = 0
@@ -153,6 +154,8 @@ itoa:
     mv  a0, t1 # a0 = t1
     addi a0, a0, 1 # soma 1 para contar o /n
     add a0, a0, t2 # a0 = a0 + t2 -- para contar a adição ou não do sinal de menos
+
+    ##TEM QUE RETORNAR O ENDEREÇO
     
     #remove da pilha e coloca na string
 

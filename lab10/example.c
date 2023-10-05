@@ -21,7 +21,7 @@ void run_operation(int op){
 
         case 1:
             gets(buffer);
-            exit(222);
+            // exit(222);
             puts(buffer);
             break;
 
