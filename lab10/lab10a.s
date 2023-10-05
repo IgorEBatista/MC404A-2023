@@ -8,17 +8,17 @@ gets:
     #t2: '\n'
     mv  a1, a0 # a1 = a0
     mv  a6, a0 # a6 = a0
-    li t2, '\n' # t2 = '\n'
+    li t2, 0 # t2 = 10
     li a0, 0  # file descriptor = 0 (stdin)
     # la a1, i #  buffer to write the data
-    li a2, 1  # size (reads only 20 byte)
+    li a2, 1  # size (reads only 1 byte)
     li a7, 63 # syscall read (63)
     1:
         ecall
-        lw t1, 0(a1) # 
+        lb t1, 0(a1) # 
         beq t1, t2, 1f # if t1 == t2 then 1f
         addi a1, a1, 1 # a1 = a1 + 1
-        j 1b
+        j 1b  
     1:
     li t1, 0 # t1 = 0
     sb t1, 0(a1) # 
@@ -26,7 +26,7 @@ gets:
     ret
 
 .globl puts
-puts:
+puts: #corrigir a alteracao na string
     #a0 : endereço da string a ser impressa
     #t0 : endereço atual --> contador
     #t1: byte da vez
@@ -35,7 +35,7 @@ puts:
 
     1:
         lb t1, 0(t0) # carrega o byte da vez 
-        beq t0, zero, 1f # if t0 == zero then 1f
+        beq t1, zero, 1f # if t0 == zero then 1f
         addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
         j 1b
     1:
@@ -44,6 +44,7 @@ puts:
     addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
     mv  a1, a0 # a1 = a0
     sub a2, t0, a0 # a2 = t0 - a0
+    
     j write
 
     write:
@@ -91,10 +92,8 @@ atoi:
     1:
         lb t0, 0(t3) # carrega o byte da vez
         addi t3, t3, 1 # t3 = t3 + 1
-        li t1, 32 # t1 = 32
+        li t1, 0 # t1 = 0
         beq t0, t1, 1f # if t0 == t1 then 1f -- Verifica se é o espaço
-        li t1, 10 # t1 = 10
-        beq t0, t1, 1f # if t0 == t1 then 1f -- Verifica se é um \n
         addi t0, t0, -48 # t0 = t0 + -48
         mul a0, a0, a1 # Multiplica o valor anterior pela base
         add a0, a0, t0 # a0 = a0 + t0 -- adiciona o novo digito ao total
@@ -103,6 +102,7 @@ atoi:
     mul a0, a0, t2 # corrige o sinal
     ret
 
+.globl itoa
 itoa:
     #a0: inteiro a ser convertido --> endereço da string de saida
     #a1: endereço da string de saida
@@ -139,7 +139,8 @@ itoa:
         addi t0, t0, 48 # t0 = t0 + 48 -- transforma em caractere
         j 3f
         2:
-            
+        sub t0, t0, t3 # t0 = t0 - t3
+        addi t0, t0, 'A' # t0 = t0 + 'A' -- transoforma em caractere hexa
         3:
         addi sp, sp, -1
         sb t0, 0(sp) # adiciona o caractere na pilha
@@ -171,8 +172,8 @@ itoa:
     ret
 
         
-
-busca:
+.globl linked_list_search
+linked_list_search:
     #a0: endereço do primeiro nó -> valor de retorno
     #a1: valor buscado
     #t0: endereço do nó atual
@@ -201,6 +202,6 @@ busca:
         
 .globl exit
 exit:
+    #a0 error code
     li a7, 93           # syscall exit (93) \n
-    li a0, 10
     ecall
