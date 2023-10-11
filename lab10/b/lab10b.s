@@ -204,9 +204,9 @@ recursive_tree_search:
         1:
         #Empilha os próximos endereços
         addi sp, sp, -8  # Salva os endereços dos nós na pilha do programa
-        lw t0, 4(sp) # 
+        lw t0, 4(a0) # 
         sw   t0, 4(sp)
-        lw t0, 8(sp) # 
+        lw t0, 8(a0) # 
         sw   t0, 0(sp)
         #Caso não, verifica se é o filho da direita
             lw a0, 0(sp) # carrega o endereço do filho da direita 
