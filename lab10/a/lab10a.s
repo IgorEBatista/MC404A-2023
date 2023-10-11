@@ -13,7 +13,7 @@ gets:
     li a2, 1  # size (reads only 1 byte)
     li a7, 63 # syscall read (63)
     1:
-    li a0, 0  # file descriptor = 0 (stdin)
+        li a0, 0  # file descriptor = 0 (stdin)
         ecall
         lb t1, 0(a1) # 
         beq t1, t2, 1f # if t1 == t2 then 1f
@@ -27,16 +27,18 @@ gets:
     ret
 
 .globl puts
-puts: #corrigir a alteracao na string
+puts:
     #a0 : endereço da string a ser impressa
     #t0 : endereço atual --> contador
     #t1: byte da vez
+    #t2: '\n'
 
     mv  t0, a0 # t0 = a0  -- inicia o endereço no inicio da string
-
+    li t2, '\n' # t2 = '\n'
     1:
         lb t1, 0(t0) # carrega o byte da vez 
         beq t1, zero, 1f # if t0 == zero then 1f
+        beq t1, t2, 1f # if t0 == t2 then 1f
         addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
         j 1b
     1:
@@ -56,7 +58,10 @@ puts: #corrigir a alteracao na string
         # la a1, saida       # buffer
         # li a2, 20           # size
         li a7, 64           # syscall write (64)
-        ecall    
+        ecall
+        addi t0, t0, -1 # t0 = t0 + -1 -- desfaz o /n
+        li t1, 0 # t1 = 0
+        sb t1, 0(t0) #    
         ret
 
 .globl atoi
@@ -112,6 +117,9 @@ itoa:
     #t1: contador de repetição
     #t2: marcador de sinal
     #t3: 10
+
+    #Salva o endereço da string
+    mv  a3, a1 # a3 = a1
     
     #verifica se a base é 10, caso for o sinal é relevante
     li t3, 10 # t3 = 10
@@ -155,7 +163,6 @@ itoa:
     addi a0, a0, 1 # soma 1 para contar o /n
     add a0, a0, t2 # a0 = a0 + t2 -- para contar a adição ou não do sinal de menos
 
-    ##TEM QUE RETORNAR O ENDEREÇO
     
     #remove da pilha e coloca na string
 
@@ -172,6 +179,7 @@ itoa:
     lb t0, 0(sp) # remove o \n da pilha 
     addi sp, sp, 1
     sb t0, 0(a1) # salva o byte na string
+    mv  a0, a3 # a0 = a3
     ret
 
         
