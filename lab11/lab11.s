@@ -7,20 +7,39 @@ motor:
     #controla o motor do carro
     #a0: comando do motor (-1, 0, 1)
     sb a0, 33(s2) # a posicao 0x21 controla o motor 
-    
+    ret
 
 freia:
     #aciona o freio de mão ( o motor deve estar desligado)
     li t1, 1 # t1 = 1
     sb t1, 34(s2) #  a posicao 0x22 controla o freio
+    ret
 
 dir:
     #controla a direção das rodas
     #a0: comando da roda (-127 ~ 127)
+    sb a0, 32(s2) # a posicao 0x20 controla a direcao da roda 
+    ret
 
 get_coord:
     #Coleta as coordenadas do gps e salva numa estrutura
     #a0: endereço da estrutura
+
+    li t1, 1 # t1 = 1
+    sb t1, 0(s2) # aciona o gps
+    1:
+        nop
+        lb t1, 0(a0) # 
+        bne t1, zero, 1b # if t1 != zero then 1b
+
+    lw t1, 16(s2) # carrega a coord x
+    ##TODO atualiza a dir x
+    sw t1, 0(a0) # salva a coord x
+    
+    lw t1, 16(s2) # carrega a coord z
+    ##TODO atualiza a dir z
+    sw t1, 0(a0) # salva a coord z
+    ret
 
 calc_dist:
     #Calcula a distância de separação com o centro do objetivo
@@ -95,7 +114,6 @@ base: .word 0xFFFF0100
 .bss
 #estrutura:
     # Coord x,z (int,int)
-    # Vetor dir (int,int)
-    # Dist Alvo (int)
+    # Vetor dir x,z (int,int)
 
-estrutura: .skip 20
+estrutura: .skip 16
