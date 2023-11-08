@@ -218,11 +218,15 @@ Syscall_read_serial:
         addi t3, t3, 1 # t3 = t3 + 1 avança o endereço
         addi a1, a1, -1 # a1 = a1 + -1
         beq t1, zero, 1f # if t1 == zero then 1f -- sai do loop se ler zero
-        bgt a1, zero, 1b # if a1 > zero then 1b
+        beq a1, zero, 2f # if a1 == zero then 2f
+        j 1b
     1:
-    
     sub a0, t3, a0 # a0 = t3 - a0
     addi a0, a0, -1 # a0 = a0 + -1
+    j resolvido
+
+    2:
+    sub a0, t3, a0 # a0 = t3 - a0
     
     j resolvido
     
