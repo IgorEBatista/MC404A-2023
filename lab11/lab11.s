@@ -6,19 +6,23 @@ _start:
 motor:
     #controla o motor do carro
     #a0: comando do motor (-1, 0, 1)
-    sb a0, 33(s2) # a posicao 0x21 controla o motor 
+    #a1: endereço base da memoria de acesso ao carro
+    
+    sb a0, 33(a1) # a posicao 0x21 controla o motor 
     ret
 
 freia:
     #aciona o freio de mão ( o motor deve estar desligado)
+    #a1: endereço base da memoria de acesso ao carro
     li t1, 1 # t1 = 1
-    sb t1, 34(s2) #  a posicao 0x22 controla o freio
+    sb t1, 34(a1) #  a posicao 0x22 controla o freio
     ret
 
 dir:
     #controla a direção das rodas
     #a0: comando da roda (-127 ~ 127)
-    sb a0, 32(s2) # a posicao 0x20 controla a direcao da roda 
+    #a1: endereço base da memoria de acesso ao carro
+    sb a0, 32(a1) # a posicao 0x20 controla a direcao da roda 
     ret
 
 get_coord:
@@ -114,11 +118,11 @@ calc_dir:
     addi sp, sp, 4
     
     bgt t0, zero, 1f # if t0 > zero then 1f
-    li a0, -63 # a0 = -127
+    li a0, -30 # a0 = -127
     ret
 
     1:
-    li a0, 63 # a0 = 127 #curva para direita
+    li a0, 30 # a0 = 127 #curva para direita
     ret
 
 root:
@@ -142,6 +146,7 @@ main:
     la s1, estrutura #  s1 será o endereço da estrutura
     LW s2, base # s2 será o endereço base do acesso à memória
     la s3, alvo # s3 será o endereço do alvo
+    li s4, 1000 # s4 = 5000 -- contador de ciclos pós alvo
     # A padronização acima foi feita para diminuir o numero de acessos a memória, 
     # visando maior otimização de processamento do sistema embarcado
 
@@ -150,6 +155,7 @@ main:
     jal get_coord  # jump to get_coord and save position to ra
     
     li a0, 1 # a0 = 1
+    mv  a1, s2 # a1 = s2
     jal motor  # jump to motor and save position to ra
     
     li a7, 5000 # a7 = 5000
@@ -167,46 +173,46 @@ main:
         mv  a0, s1 # a0 = s1
         mv  a1, s3 # a1 = s3
         jal calc_dir  # jump to calc_dir and save position to ra
+        mv  a1, s2 # a1 = s2
         jal dir  # jump to dir and save position to ra
 
-        mv  a0, s1 # a0 = s1
-        mv  a1, s2 # a1 = s2
-        jal get_coord  # jump to get_coord and save position to ra
         
         li a7, 1000 # a7 = 1000
         2:
             nop
             addi a7, a7, -1 # a7 = a7 + -1
             bne a7, zero, 2b # if a7 != zero then 2b
+        2:
 
-
+        mv  a0, s1 # a0 = s1
+        mv  a1, s2 # a1 = s2
+        jal get_coord  # jump to get_coord and save position to ra
 
         mv  a0, s1 # a0 = s1
         mv  a1, s3 # a1 = s3
         jal calc_dist  # jump to calc_dist and save position to ra
         
-        li t1, 30 # t1 = 30
+        li t1, 20 # t1 = 30
         sub a0, a0, t1 # a0 = a0 - t1
-        blt a0, zero, 1f # if a0 < zero then 1f
-        li t1, 30 # t1 = 30
+        bgt a0, zero, 3f # if a0 < zero then 3f
+        mv  a1, s2 # a1 = s2
+        jal freia  # jump to freia and save position to ra
+        addi s4, s4, -1 # s4 = s4 - 1
+        blt s4, zero, 1f # if s4 < zero then 1f        
+        
+        3:
+        li t1, 60 # t1 = 30
         sub a0, a0, t1 # a0 = a0 - t1
         bgt a0, zero, 1b # if a0 > zero then 1b
         li a0, 0 # a0 = 0
+        mv  a1, s2 # a1 = s2
         jal motor  # jump to motor and save position to ra
 
         j 1b  # jump to 1b
         
     1:
 #Finalizacao
-    
-    jal freia  # jump to freia and save position to ra
-
-    li a7, 1000 # a7 = 1000
-        2:
-            nop
-            addi a7, a7, -1 # a7 = a7 + -1
-            bne a7, zero, 2b # if a7 != zero then 2b
-    
+    li a0, 0 # a0 = 0
     j exit
 
 exit:
@@ -215,7 +221,7 @@ exit:
 
 
 .data
-alvo: .word 73, -19
+alvo: .word 73, -14
 base: .word 0xFFFF0100
 
 #estrutura:
