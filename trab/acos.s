@@ -308,8 +308,6 @@ _start:
     li t2, ~0x1800 # field (bits 11 and 12)
     and t1, t1, t2 # with value 00 (U-mode)
     csrw mstatus, t1
-    la t0, user_main # Loads the user software
+    la t0, main # Loads the user software
     csrw mepc, t0 # entry point into mepc
     mret # PC <= MEPC; mode <= MPP;
-
-user_main:
