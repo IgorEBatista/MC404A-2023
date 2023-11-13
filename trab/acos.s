@@ -238,7 +238,6 @@ Syscall_write_serial:
 
     LW t0, BASE_SERIAL #
     li t2, 1 # t2 = 1
-    
 
     1:
         lb t1, 0(a0) # carrega o byte da vez
@@ -308,6 +307,6 @@ _start:
     li t2, ~0x1800 # field (bits 11 and 12)
     and t1, t1, t2 # with value 00 (U-mode)
     csrw mstatus, t1
-    la t0, main # Loads the user software
+    la t0, puts # Loads the user software
     csrw mepc, t0 # entry point into mepc
     mret # PC <= MEPC; mode <= MPP;

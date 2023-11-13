@@ -66,6 +66,7 @@ puts:
     #a1: size
     #a7: 18
 
+    la a0, aaaa # 
 
     #a0 : endereço da string a ser impressa
     #t0 : endereço atual --> contador
@@ -85,9 +86,10 @@ puts:
     li t1, '\n' # t1 = '\n'
     sb t1, 0(t0) # 
     addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
-    mv  a1, a0 # a1 = a0
+
     sub a1, t0, a0 # a1 = t0 - a0 -- verifica quantos caracteres há na string
-    
+
+
     li a7, 18           # syscall write (18)
     ecall
 
@@ -107,12 +109,12 @@ gets:
     #t2: 10 -- '\n'
     
     mv  a6, a0 # a6 = a0
-    li a2, 1  # size (reads only 1 byte)
-    li a7, 17 # syscall read (17)
-    li t1, 10 # t1 = 10
     li t2, 0 # t2 = 0
     
     1:
+    li a2, 1  # size (reads only 1 byte)
+    li a7, 17 # syscall read (17)
+    li t1, 10 # t1 = 10
         add a0, a6, t2 # a0 = a6 + t2
         li a1, 1 # a1 = 1
         ecall
@@ -123,6 +125,7 @@ gets:
 
         j 1b  
     1:
+
     li t0, 0 # t0 = 0
     sb t0, 0(a0) # 
     mv  a0, a6 # a0 = a6
@@ -162,7 +165,7 @@ atoi:
     1:
         lb t0, 0(t3) # carrega o byte da vez
         addi t3, t3, 1 # t3 = t3 + 1 -- avança para o próximo na string
-        li t1, 0 # t1 = 0
+        li t1, 10 # t1 = 0
         beq t0, t1, 1f # if t0 == t1 then 1f -- Verifica se é o final
         addi t0, t0, -48 # t0 = t0 + -48
         mul a0, a0, a1 # Multiplica o valor anterior pela base
@@ -294,3 +297,8 @@ get_distance:
 
 .globl fill_and_pop
 fill_and_pop:
+
+
+.data
+
+aaaa: .string "abc\n"
