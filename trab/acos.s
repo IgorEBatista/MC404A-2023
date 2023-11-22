@@ -246,9 +246,11 @@ Syscall_write_serial:
         
         2: #Espera a escrita terminar
             nop
-            lb t1, 0(a1) # 
+            lb t1, 0(t0) # 
             bne t1, zero, 2b # if t1 != zero then 2b
-
+        ##
+        sb zero, 0(a0) # 
+        ##
         addi a0, a0, 1 # a0 = a0 + 1 -- atualiza o endereço
         addi a1, a1, -1 # a1 = a1 + -1 -- atualiza o contador
         bgt a1, zero, 1b # if a1 > zero then 1b
@@ -307,6 +309,6 @@ _start:
     li t2, ~0x1800 # field (bits 11 and 12)
     and t1, t1, t2 # with value 00 (U-mode)
     csrw mstatus, t1
-    la t0, puts # Loads the user software
+    la t0, main # Loads the user software
     csrw mepc, t0 # entry point into mepc
     mret # PC <= MEPC; mode <= MPP;

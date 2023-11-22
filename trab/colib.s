@@ -66,8 +66,6 @@ puts:
     #a1: size
     #a7: 18
 
-    la a0, aaaa # 
-
     #a0 : endereço da string a ser impressa
     #t0 : endereço atual --> contador
     #t1: byte da vez
@@ -78,7 +76,7 @@ puts:
     1:
         lb t1, 0(t0) # carrega o byte da vez 
         beq t1, zero, 1f # if t0 == zero then 1f
-        beq t1, t2, 1f # if t0 == t2 then 1f
+        # beq t1, t2, 1f # if t0 == t2 then 1f
         addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
         j 1b
     1:
@@ -142,13 +140,13 @@ atoi:
 
     #ignora espaços
     mv  t3, a0 # t3 = a0
-    li t1, ' ' # t1 = ' '
-    1:
-        lb t0, 0(t3) # carrega o primeiro byte 
-        bne t0, t1, 1f # if t0 != t1 then 1f
-        addi t3, t3, 1 # t3 = t3 + 1
-        j 1b
-    1:
+    # li t1, ' ' # t1 = ' '
+    # 1:
+    #     lb t0, 0(t3) # carrega o primeiro byte 
+    #     bne t0, t1, 1f # if t0 != t1 then 1f
+    #     addi t3, t3, 1 # t3 = t3 + 1
+    #     j 1b
+    # 1:
 
     li a1, 10 # a1 = 10
     li t2, 1 # t2 = 1
@@ -165,7 +163,7 @@ atoi:
     1:
         lb t0, 0(t3) # carrega o byte da vez
         addi t3, t3, 1 # t3 = t3 + 1 -- avança para o próximo na string
-        li t1, 10 # t1 = 0
+        li t1, 0 # t1 = 0
         beq t0, t1, 1f # if t0 == t1 then 1f -- Verifica se é o final
         addi t0, t0, -48 # t0 = t0 + -48
         mul a0, a0, a1 # Multiplica o valor anterior pela base
@@ -207,7 +205,7 @@ itoa:
     bne a2, t3, 2f # if a2 != t3 then 2f
     
     li t1, 0 # t1 = 0 -- zera o contador    
-    li t0, '\n' # t0 = '\n'
+    li t0, 0 # t0 = 0
     addi sp, sp, -1
     sb t0, 0(sp) # adiciona o \n ao inicio da pilha
 
@@ -236,7 +234,7 @@ itoa:
     
     normal:
     li t1, 0 # t1 = 0 -- zera o contador    
-    li t0, '\n' # t0 = '\n'
+    li t0, 0 # t0 = 0
     addi sp, sp, -1
     sb t0, 0(sp) # adiciona o \n ao inicio da pilha
     
@@ -285,20 +283,99 @@ itoa:
 
 .globl strlen_custom
 strlen_custom:
+    #a0: endereço do vetor -> tamanho do vetor
 
+    mv  t0, a0 # t0 = a0  -- inicia o endereço no inicio da string
+    1:
+        lb t1, 0(t0) # carrega o byte da vez 
+        beq t1, zero, 1f # if t0 == zero then 1f
+        addi t0, t0, 1 # t0 = t0 + 1 -- atualiza o contador
+        j 1b
+    1:
+
+    sub a0, t0, a0 # a0 = t0 - a0
+    ret
 
 .globl approx_sqrt
 approx_sqrt:
+    #a0: valor -> raiz do valor
+    #a1: numero de iterações
 
+    mv t0, a1 # t0 = a1 marcador de repetições
+    mv  a1, a0 # a1 = a0
+    srli a0, a1, 1  #divide por 2 e salva em a0 (estima k inicial)
+    
+    1:  #inicio do loop
+        div t1, a1, a0 #divide y por k atual
+        add a0, a0, t1 # a0 = a0 + t1
+        srli a0, a0, 1 #divide por 2 e salva em a0 (novo k)
+        addi t0, t0, -1 # t0 = t0  -1  fim do loop
+    bnez t0, 1b # if t0 != 0  then  1b:
+    ret
 
 .globl get_distance
 get_distance:
+    #a0: X coordinate of point A. -> distancia² -> distancia
+    #a1: Y coordinate of point A. -> numero de iterações
+    #a2: Z coordinate of point A.
+    #a3: X coordinate of point B.
+    #a4: Y coordinate of point B.
+    #a5: Z coordinate of point B.
 
+    addi sp, sp, -4  # Salva enrdereço de ra na pilha do programa
+    sw   ra, 0(sp)
+
+    sub a0, a3, a0 # a0 = a3 - a0 -- calcula dx
+    sub a1, a4, a1 # a1 = a4 - a1 -- calcula dy
+    sub a2, a5, a2 # a2 = a5 - a2 -- calcula dz
+
+    mul a0, a0, a0 # dx²
+    mul a1, a1, a1 # dy²
+    mul a2, a2, a2 # dz²
+
+    add a0, a0, a1 # a0 = a0 + a1 -- dx² + dy²
+    add a0, a0, a2 # a0 = a0 + a2 -- dx² + dy² + dz²
+    
+    li a1, 50 # a1 = 50
+    jal approx_sqrt  # jump to approx_sqrt and save position to ra
+    
+    lw   ra, 0(sp)    # Recupera endereço de ra da pilha
+    addi sp, sp, 4
+    ret
 
 .globl fill_and_pop
 fill_and_pop:
+    #a0: endereço do nó atual -> endereço do nó seguinte
+    #a1: endereço do nó destino
 
+    #Estrutura do nó:
+    # typedef struct Node {
+    #     int x, y, z; // GPS coordinates
+    #     int a_x, a_y, a_z; // Euler Angles for adjustments
+    #     Action action; // Actions to perform
+    #     struct Node *next; // Next node
+    # } Node;
+    
+    lw t0, 0(a0) # carrega o x
+    sw t0, 0(a1) # salva o x
+    lw t0, 4(a0) # carrega o y
+    sw t0, 4(a1) # salva o y
+    lw t0, 8(a0) # carrega o z
+    sw t0, 8(a1) # salva o z
 
-.data
+    lw t0, 12(a0) # lida com os a_x, a_y, a_z
+    sw t0, 12(a1) #
+    lw t0, 16(a0) # 
+    sw t0, 16(a1) #
+    lw t0, 20(a0) # 
+    sw t0, 20(a1) #
 
-aaaa: .string "abc\n"
+    lw t0, 24(a0) # lida com a ação
+    sw t0, 24(a1) #
+
+    lw t0, 28(a0) # copia o próximo nó
+    sw t0, 28(a1) #
+
+    mv  a0, t0 # a0 = t0
+
+    ret

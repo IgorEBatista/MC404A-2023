@@ -60,8 +60,8 @@ int angle_adjustment(int angle, int target){
     if (angle - target == 0)
         return 0;
     if (angle < target)
-        return 1;
-    return -1;
+        return 10;
+    return -10;
 }
 
 /* Go to target braking in small intervals until reaches it inside a radius of 12 meters */
@@ -74,13 +74,13 @@ void go_to(Node* target){
     get_rotation(&a_x, &a_y, &a_z);
     set_engine(1, 0);
     set_handbrake(brake);
-    while (get_distance(x, y, z, target->x, target->y, target->z) > 12)
+    while (get_distance(x, y, z, target->x, target->y, target->z) > 10)
     {
         set_engine(1, angle_adjustment(a_y, target->a_y));
         set_handbrake(brake);
         get_rotation(&a_x, &a_y, &a_z);
         get_position(&x, &y, &z);
-        if (no_brake_count < 3){
+        if (no_brake_count < 2){
             brake = 0;
             no_brake_count++;
         } else {
@@ -95,26 +95,56 @@ void go_to(Node* target){
 
 /* Stops engine and performs a turn to left or right until car is aligned with target gyroscope angle */
 void turn(int direction, Node* target){
-    int x, y, z;
-    int brake = 0, no_brake_count = 0;
+    int x, y, z, old_y;
+    int engine_on = 0;
+    int cycle_count = 0;
     set_handbrake(0);
     set_engine(0 , direction*90);
     get_rotation(&x, &y, &z);
+    old_y = y;
     while (is_angle_close(y, target->a_y) == 0){
         get_rotation(&x, &y, &z);
+        cycle_count++;
+        if (engine_on){
+            engine_on = 0;
+            set_engine(0, direction*90);
+        }
+        if (cycle_count == 4){
+            if (old_y == y){
+                set_engine(1 , direction*90);
+                engine_on = 1; 
+            }
+            cycle_count = 0;
+            old_y = y;
+        }
     }
     set_engine(0 , 0);
 }
 
 /* Stops engine and turns back until car is aligned with target gyroscope angle */
 void turn_back(Node* target){
-    int x, y, z;
-    int brake = 0, no_brake_count = 0;
+    int x, y, z, old_y;
+    int engine_on = 0;
+    int cycle_count = 0;
     set_handbrake(0);
     set_engine(0 , -127);
     get_rotation(&x, &y, &z);
+    old_y = y;
     while (is_angle_close(y, target->a_y) == 0){
         get_rotation(&x, &y, &z);
+        cycle_count++;
+        if (engine_on){
+            engine_on = 0;
+            set_engine(0, -127);
+        }
+        if (cycle_count == 4){
+            if (old_y == y){
+                set_engine(1 , -127);
+                engine_on = 1; 
+            }
+            cycle_count = 0;
+            old_y = y;
+        }
     }
     set_engine(0 , 0);
 }
