@@ -1,4 +1,4 @@
-Ex. 7.3: Hamming Code
+# Ex. 7.3: Hamming Code
 Instructions:
 In this activity, you must write a program in RISC-V assembly language that performs the encoding and decoding of a Hamming(7, 4) code.
 
@@ -24,12 +24,12 @@ On the second part of this exercise, you will receive a sequence of 7 bits that 
 The XOR operator can be used for a given subset of bits. For instance, to check the parity for which p1 is responsible, p1 XOR d1 XOR d2 XOR d4 must be equal to 0. Otherwise, there is an error on the encoded data. Do this for the 3 subsets of bits in order to check if you can trust the data encoded with Hamming(7, 4).
 
 Input:
-Line 1 - a sequence of 4 bits that must be encoded in a Hamming code using 3 parity bits.
-Line 2 - a sequence of 7 bits that is Hamming encoded, and must be decoded and checked.
+* Line 1 - a sequence of 4 bits that must be encoded in a Hamming code using 3 parity bits.
+* Line 2 - a sequence of 7 bits that is Hamming encoded, and must be decoded and checked.
 Output:
-Line 1 - sequence of 7 bits that has been encoded using Hamming code
-Line 2 - sequence of 4 bits that has been decoded from the Hamming code.
-Line 3 - 1 if an error was detected when decoding the Hamming code, 0 otherwise.
+* Line 1 - sequence of 7 bits that has been encoded using Hamming code
+* Line 2 - sequence of 4 bits that has been decoded from the Hamming code.
+* Line 3 - 1 if an error was detected when decoding the Hamming code, 0 otherwise.
 
 Examples:
 
@@ -84,7 +84,7 @@ Output:
 
 
 Notes and Tips:
-Exclusive OR (XOR) is a logic operator that facilitates the computation of parity bits
-AND instruction is useful to leave only a given group of bits set (masking).
-The decoded data doesn't need to be corrected, in case an error is detected.
-You can test your code using the simulator's assistant from this link.
+* Exclusive OR (XOR) is a logic operator that facilitates the computation of parity bits
+* AND instruction is useful to leave only a given group of bits set (masking).
+* The decoded data doesn't need to be corrected, in case an error is detected.
+* You can test your code using the simulator's assistant from this link.

@@ -18,16 +18,17 @@ Your program must show the image on the screen using syscalls to the Canvas peri
 | setScaling    | a0: horizontal scaling a1: vertical scaling a7: 2202 (syscall number)                                                                                                                       | Updates canvas' scaling                                                                                                     |
 
 Notes and Tips:
-To test on the simulator, you have to load your program (.s file) and the image file (name "image.pgm") simultaneously.
-When new files are loaded to the simulator, older ones are erased, so you have to load the program and image files together every time.
-To use the Canvas, you must enable it on the simulator. To do so, go to the tab  “Hardware” -> “External Devices” table ->  “+” Icon on the Canvas row. A new tab will appear where the canvas can be seen. 
-This exercise uses multiple syscall numbers. These values will always be stored on the register a7, and the ecall function has a different behavior for each value. To check the syscall for a specific functionality, the simulator table can be checked (note that the syscalls related to external devices, like Canvas, are not shown in this table if the device is not enabled). 
-You will not receive images larger than 512x512 (that typically takes up 262159 bytes).
-In all images, Maxval will be  255. 
-The canvas is indexed starting on 0.
-You need to resize the canvas (setCanvasSize syscall) according to the file header.
-You can test your code using the simulator's assistant from this link.
+* To test on the simulator, you have to load your program (.s file) and the image file (name "image.pgm") simultaneously.
+* When new files are loaded to the simulator, older ones are erased, so you have to load the program and image files together every time.
+* To use the Canvas, you must enable it on the simulator. To do so, go to the tab  “Hardware” -> “External Devices” table ->  “+” Icon on the Canvas row. A new tab will appear where the canvas can be seen. 
+* This exercise uses multiple syscall numbers. These values will always be stored on the register a7, and the ecall function has a different behavior for each value. To check the syscall for a specific functionality, the simulator table can be checked (note that the syscalls related to external devices, like Canvas, are not shown in this table if the device is not enabled). 
+* You will not receive images larger than 512x512 (that typically takes up 262159 bytes).
+* In all images, Maxval will be  255. 
+* The canvas is indexed starting on 0.
+* You need to resize the canvas (setCanvasSize syscall) according to the file header.
+* You can test your code using the simulator's assistant from this link.
 
+```
 setPixel example:
     li a0, 100 # x coordinate = 100
     li a1, 200 # y coordinate = 200
@@ -45,7 +46,7 @@ The open syscall returns the file descriptor (fd) for the file on a0. This file 
     ecall
 
 input_file: .asciz "image.pgm"
-
+```
 
 # Ex. 7.5: Applying a Filter to an Image  --- lab08b.s
 Instructions:
@@ -53,10 +54,9 @@ In this activity, you must write a program in RISC-V assembly language that read
  
 The first step of this exercise is to read an image in the PGM format and store its content in a matrix (exactly as done in exercise 7.4). After that, you must apply the following filter on the image:
 
-            | -1 | -1 | -1 |
-    w =     |----|----|----|
-            | -1 | 8  | -1 |
-            | -1 | -1 | -1 |
+        | -1 | -1 | -1 |
+w =     | -1 | 8  | -1 |
+        | -1 | -1 | -1 |
 
 Assuming w the filter matrix above, Minthe matrix representing the input image and Mout the matrix representing the output image. The basic idea of applying the filter is that each Mout pixel[i, j] is defined as:
 
@@ -72,5 +72,5 @@ Output:
 Your program must show the result image on the screen,  using the Canvas peripheral, as explained in exercise 7.4.
 
 Notes and Tips:
-You need to resize the canvas (setCanvasSize syscall) according to the file header.
-You can test your code using the simulator's assistant from this link.
+* You need to resize the canvas (setCanvasSize syscall) according to the file header.
+* You can test your code using the simulator's assistant from this link.

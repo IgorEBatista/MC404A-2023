@@ -57,10 +57,10 @@ Output:
 
 
 Notes and Tips:
-The head node of the linked list is stored on the address marked by the label head_node (DO NOT use this label on your code).
-The fields of the linked list node struct are VAL1, VAL2, and NEXT, in this order. VAL1 and VAL2 are 32-bit signed integer values stored on the node and NEXT is the pointer to the next node on the linked list. If there isn't a next node, it will be a NULL pointer.
-To check if the received value is on the current node, the comparison VAL1 + VAL2 = received value must be made.
-A NULL pointer is represented by the value 0.
-The indexing of the list nodes starts at 0 (i.e., the head_node has index 0).
-All nodes will have different sum values.
-You can test your code using the simulator's assistant from this link.
+* The head node of the linked list is stored on the address marked by the label head_node (DO NOT use this label on your code).
+* The fields of the linked list node struct are VAL1, VAL2, and NEXT, in this order. VAL1 and VAL2 are 32-bit signed integer values stored on the node and NEXT is the pointer to the next node on the linked list. If there isn't a next node, it will be a NULL pointer.
+* To check if the received value is on the current node, the comparison VAL1 + VAL2 = received value must be made.
+* A NULL pointer is represented by the value 0.
+* The indexing of the list nodes starts at 0 (i.e., the head_node has index 0).
+* All nodes will have different sum values.
+* You can test your code using the simulator's assistant from this link.
